@@ -1,0 +1,115 @@
+[
+  {
+    "name": "context",
+    "type": "string",
+    "mode": "required",
+    "description": "who|what|where this entry originated from"
+  },
+  {
+    "name": "themes",
+    "type": "string",
+    "mode": "repeated",
+    "description": "the theme/subject"
+  },
+  {
+    "name": "created_at",
+    "type": "timestamp",
+    "mode": "required",
+    "description": "when tweet was created"
+  },
+  {
+    "name": "id",
+    "type": "string",
+    "mode": "required",
+    "description": "the tweet id"
+  },
+  {
+    "name": "text",
+    "type": "string",
+    "mode": "required",
+    "description": "the tweets content"
+  },
+  {
+    "name": "retweet_count",
+    "type": "integer",
+    "mode": "required",
+    "description": "the number of retweets"
+  },
+  {
+    "name": "favorite_count",
+    "type": "integer",
+    "mode": "required",
+    "description": "the number of favorites"
+  },
+  {
+    "name": "language",
+    "type": "string",
+    "mode": "required",
+    "description": "the language code"
+  },
+  {
+    "name": "country_code",
+    "type": "string",
+    "mode": "nullable",
+    "description": "the country code"
+  },
+  {
+    "name": "hashtags",
+    "type": "string",
+    "mode": "repeated",
+    "description": "the hashtags within the tweet"
+  },
+  {
+    "name": "user",
+    "type": "record",
+    "mode": "required",
+    "description": "user info",
+    "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "mode": "required",
+          "description": "the user id"
+        },
+        {
+          "name": "screen_name",
+          "type": "string",
+          "mode": "required",
+          "description": "the user's screen name"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "mode": "nullable",
+          "description": "the location the user display on profile"
+        },
+        {
+          "name": "followers_count",
+          "type": "integer",
+          "mode": "required",
+          "description": "the users follower count"
+        },
+        {
+          "name": "friends_count",
+          "type": "integer",
+          "mode": "required",
+          "description": "the users friends count"
+        },
+        {
+          "name": "listed_count",
+          "type": "integer",
+          "mode": "required",
+          "description": "the users listed count"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp",
+          "mode": "required",
+          "description": "the users creation date"
+        }
+      ]
+  }
+
+
+
+]
