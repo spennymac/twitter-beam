@@ -13,6 +13,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionTuple;
 import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.sdk.values.TupleTagList;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,11 +43,27 @@ public class ExtractTheme extends PTransform<PCollection<TwitterIO.StatusMsg>, P
                 ParDo.of(new DoFn<TwitterIO.StatusMsg, StatusTheme>() {
                     @ProcessElement
                     public void processElement(ProcessContext context) {
-                        String normal = context.element().getStatus().getText().toUpperCase();
-                        Set<String> themes = mapKeys.stream().filter(normal::contains).map(keywordToTheme::get).collect(Collectors.toSet());
+                        String text = context.element().getStatus().getText();
+                        Set<String> themes = mapKeys.stream().filter((kw) -> {
+
+                            if (StringUtils.containsIgnoreCase(text, kw)) {
+                                return true;
+                            }
+                            if (StringUtils.containsWhitespace(kw)) {
+                                for (String w : kw.split(" ")) {
+                                    if (!StringUtils.containsIgnoreCase(w, kw)) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                            return false;
+                        }).map(keywordToTheme::get).collect(Collectors.toSet());
+
                         if (themes.size() != 0) {
                             context.output(StatusTheme.of(context.element(), themes));
                         } else {
+                            LOG.info("no theme was extracted from tweet {}", text);
                             noThemeExtracted.inc();
                             context.output(TRANSFORM_OUT_FAILURE, context.element());
                         }

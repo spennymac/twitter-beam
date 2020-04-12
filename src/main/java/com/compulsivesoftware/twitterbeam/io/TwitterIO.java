@@ -10,8 +10,8 @@ import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
-import org.joda.time.Duration;
 import org.joda.time.Instant;
+import org.slf4j.LoggerFactory;
 import twitter4j.*;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
@@ -92,6 +92,7 @@ public class TwitterIO {
     }
 
     private static class StreamHandler {
+        private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(StreamHandler.class);
 
         final LinkedBlockingQueue<Status> messages = new LinkedBlockingQueue<>();
         Configuration config;
@@ -115,7 +116,6 @@ public class TwitterIO {
                 @Override
                 public void onStatus(Status status) {
                     messages.offer(status);
-
                 }
 
                 @Override
@@ -140,7 +140,7 @@ public class TwitterIO {
 
                 @Override
                 public void onException(Exception e) {
-
+                    LOG.warn(e.getMessage());
                 }
             });
         }
@@ -150,17 +150,16 @@ public class TwitterIO {
         }
 
         public void start() {
+            LOG.info("starting stream handler");
             stream.filter(this.filterQuery);
         }
 
         public void stop() {
+            LOG.info("stopping stream handler");
             stream.shutdown();
         }
     }
 
-    /**
-     * A {@link PTransform} to consume messages from RabbitMQ server.
-     */
     @AutoValue
     public abstract static class Read extends PTransform<PBegin, PCollection<StatusMsg>> {
         @Nullable
@@ -201,7 +200,6 @@ public class TwitterIO {
                     org.apache.beam.sdk.io.Read.from(new TwitterSource(this));
 
             PTransform<PBegin, PCollection<StatusMsg>> transform = unbounded;
-            //TODO interested??
             return input.getPipeline().apply(transform);
         }
 
@@ -279,12 +277,12 @@ public class TwitterIO {
 
         @Override
         public Instant getWatermark() {
-            return currentTimestamp.minus(new Duration(1)); //TODO ...
+            return currentTimestamp;
         }
 
         @Override
         public UnboundedSource.CheckpointMark getCheckpointMark() {
-            return null;
+            return new UnboundedSource.CheckpointMark.NoopCheckpointMark();
         }
 
         @Override

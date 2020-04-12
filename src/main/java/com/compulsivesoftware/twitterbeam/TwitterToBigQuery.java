@@ -11,20 +11,17 @@ import com.google.api.services.bigquery.model.TableRow;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
-import org.apache.beam.sdk.io.gcp.bigquery.BigQueryInsertError;
-import org.apache.beam.sdk.io.gcp.bigquery.InsertRetryPolicy;
-import org.apache.beam.sdk.io.gcp.bigquery.WriteResult;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionTuple;
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+
+import static org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO.Write.Method.FILE_LOADS;
 
 
 public class TwitterToBigQuery {
@@ -55,41 +52,19 @@ public class TwitterToBigQuery {
                                 new ArrayList(keywordThemes.keySet())
                         ));
 
-
         PCollectionTuple extracthemeMsg = messages.apply("ParseThemesFromTweet", new ExtractTheme(keywordThemes));
         PCollection<StatusTheme> statusThemes = extracthemeMsg.get(ExtractTheme.TRANSFORM_OUT_SUCCESS);
 
         PCollection<TableRow> convertedTableRows = statusThemes.apply("Convert to TableRow", new StatusThemeToTableRow(options.getContext()));
 
-        WriteResult writeResult =
-                convertedTableRows
-                        .apply(
-                                "WriteSuccessfulRecords",
-                                BigQueryIO.writeTableRows()
-                                        .withoutValidation()
-                                        .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
-                                        .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
-                                        .withExtendedErrorInfo()
-                                        .ignoreUnknownValues()
-                                        .withMethod(BigQueryIO.Write.Method.STREAMING_INSERTS)
-                                        .withFailedInsertRetryPolicy(InsertRetryPolicy.retryTransientErrors())
-                                        .to(options.getOutputTableSpec()));
-
-        writeResult.getFailedInsertsWithErr()
-                .apply("LogFailedData", ParDo.of(new DoFn<BigQueryInsertError, BigQueryInsertError>() {
-                    @DoFn.ProcessElement
-                    public void processElement(ProcessContext c) {
-                        BigQueryInsertError er = c.element();
-                        try {
-                            LOG.error(er.getError().toPrettyString());
-                        } catch (IOException ex) {
-                            er.getError().getErrors().forEach(error -> {
-                                LOG.error(String.format("Insert failed - backup error string: %s", error.getDebugInfo()));
-                            });
-                        }
-                    }
-                }));
-
+        convertedTableRows.apply("Write assets to BigQuery in batch", BigQueryIO
+                .writeTableRows()
+                .withTriggeringFrequency(Duration.standardMinutes(5))
+                .withMethod(FILE_LOADS)
+                .withNumFileShards(1)
+                .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
+                .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
+                .to(options.getOutputTableSpec()));
 
         return pipeline.run();
     }

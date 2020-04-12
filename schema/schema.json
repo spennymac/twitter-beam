@@ -1,115 +1,136 @@
 [
   {
+    "mode": "NULLABLE",
     "name": "context",
-    "type": "string",
-    "mode": "required",
-    "description": "who|what|where this entry originated from"
+    "type": "STRING"
   },
   {
+    "mode": "REPEATED",
     "name": "themes",
-    "type": "string",
-    "mode": "repeated",
-    "description": "the theme/subject"
+    "type": "STRING"
   },
   {
+    "mode": "NULLABLE",
     "name": "created_at",
-    "type": "timestamp",
-    "mode": "required",
-    "description": "when tweet was created"
+    "type": "TIMESTAMP"
   },
   {
+    "mode": "NULLABLE",
     "name": "id",
-    "type": "string",
-    "mode": "required",
-    "description": "the tweet id"
+    "type": "STRING"
   },
   {
+    "mode": "NULLABLE",
     "name": "text",
-    "type": "string",
-    "mode": "required",
-    "description": "the tweets content"
+    "type": "STRING"
   },
   {
+    "mode": "NULLABLE",
     "name": "retweet_count",
-    "type": "integer",
-    "mode": "required",
-    "description": "the number of retweets"
+    "type": "INTEGER"
   },
   {
+    "mode": "NULLABLE",
     "name": "favorite_count",
-    "type": "integer",
-    "mode": "required",
-    "description": "the number of favorites"
+    "type": "INTEGER"
   },
   {
+    "mode": "NULLABLE",
     "name": "language",
-    "type": "string",
-    "mode": "required",
-    "description": "the language code"
+    "type": "STRING"
   },
   {
+    "mode": "NULLABLE",
     "name": "country_code",
-    "type": "string",
-    "mode": "nullable",
-    "description": "the country code"
+    "type": "STRING"
   },
   {
+    "mode": "REPEATED",
     "name": "hashtags",
-    "type": "string",
-    "mode": "repeated",
-    "description": "the hashtags within the tweet"
+    "type": "STRING"
   },
   {
-    "name": "user",
-    "type": "record",
-    "mode": "required",
-    "description": "user info",
     "fields": [
-        {
-          "name": "id",
-          "type": "string",
-          "mode": "required",
-          "description": "the user id"
-        },
-        {
-          "name": "screen_name",
-          "type": "string",
-          "mode": "required",
-          "description": "the user's screen name"
-        },
-        {
-          "name": "location",
-          "type": "string",
-          "mode": "nullable",
-          "description": "the location the user display on profile"
-        },
-        {
-          "name": "followers_count",
-          "type": "integer",
-          "mode": "required",
-          "description": "the users follower count"
-        },
-        {
-          "name": "friends_count",
-          "type": "integer",
-          "mode": "required",
-          "description": "the users friends count"
-        },
-        {
-          "name": "listed_count",
-          "type": "integer",
-          "mode": "required",
-          "description": "the users listed count"
-        },
-        {
-          "name": "created_at",
-          "type": "timestamp",
-          "mode": "required",
-          "description": "the users creation date"
-        }
-      ]
+      {
+        "mode": "NULLABLE",
+        "name": "id",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "screen_name",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "location",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "followers_count",
+        "type": "INTEGER"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "friends_count",
+        "type": "INTEGER"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "listed_count",
+        "type": "INTEGER"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "created_at",
+        "type": "TIMESTAMP"
+      }
+    ],
+    "mode": "NULLABLE",
+    "name": "user",
+    "type": "RECORD"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "retrieval_time",
+    "type": "TIMESTAMP"
+  },
+  {
+    "fields": [
+      {
+        "mode": "NULLABLE",
+        "name": "id",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "name",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "full_name",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "place_type",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "country_code",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "country",
+        "type": "STRING"
+      }
+    ],
+    "mode": "NULLABLE",
+    "name": "place",
+    "type": "RECORD"
   }
-
-
-
 ]

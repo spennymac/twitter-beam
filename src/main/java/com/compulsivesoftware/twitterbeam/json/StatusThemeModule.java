@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.api.client.util.DateTime;
 import com.google.auto.service.AutoService;
 import twitter4j.HashtagEntity;
+import twitter4j.Place;
 import twitter4j.Status;
 import twitter4j.User;
 
@@ -39,8 +40,17 @@ public class StatusThemeModule extends SimpleModule implements Serializable {
             jsonGenerator.writeStringField("created_at", new DateTime(status.getCreatedAt()).toString());
             jsonGenerator.writeStringField("id", Long.toString(status.getId()));
             jsonGenerator.writeStringField("text", status.getText());
-            jsonGenerator.writeObjectFieldStart("user");
+            jsonGenerator.writeNumberField("retweet_count", status.getRetweetCount());
+            jsonGenerator.writeNumberField("favorite_count", status.getFavoriteCount());
+            jsonGenerator.writeStringField("language", status.getLang());
 
+            jsonGenerator.writeArrayFieldStart("hashtags");
+            for (HashtagEntity i : status.getHashtagEntities()) {
+                jsonGenerator.writeString(i.getText());
+            }
+            jsonGenerator.writeEndArray();
+
+            jsonGenerator.writeObjectFieldStart("user");
             User user = status.getUser();
             jsonGenerator.writeStringField("id", Long.toString(user.getId()));
             jsonGenerator.writeStringField("created_at", new DateTime(user.getCreatedAt()).toString());
@@ -51,21 +61,17 @@ public class StatusThemeModule extends SimpleModule implements Serializable {
             jsonGenerator.writeNumberField("listed_count", user.getListedCount());
             jsonGenerator.writeEndObject();
 
-            jsonGenerator.writeNumberField("retweet_count", status.getRetweetCount());
-            jsonGenerator.writeNumberField("favorite_count", status.getFavoriteCount());
 
-            String countryCode = "";
-            if (status.getPlace() != null) {
-                countryCode = status.getPlace().getCountryCode();
+            jsonGenerator.writeObjectFieldStart("place");
+            Place place = status.getPlace();
+            if (place != null) {
+                jsonGenerator.writeStringField("id", place.getId());
+                jsonGenerator.writeStringField("name", place.getName());
+                jsonGenerator.writeStringField("full_name", place.getName());
+                jsonGenerator.writeStringField("place_type", place.getPlaceType());
+                jsonGenerator.writeStringField("country_code", place.getCountryCode());
+                jsonGenerator.writeStringField("country", place.getCountry());
             }
-            jsonGenerator.writeStringField("language", status.getLang());
-            jsonGenerator.writeStringField("country_code", countryCode);
-
-            jsonGenerator.writeArrayFieldStart("hashtags");
-            for (HashtagEntity i : status.getHashtagEntities()) {
-                jsonGenerator.writeString(i.getText());
-            }
-            jsonGenerator.writeEndArray();
             jsonGenerator.writeEndObject();
         }
     }
